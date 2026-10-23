@@ -36,7 +36,7 @@ Available in **English, Português, Français and Español**. Free and open sour
 
 **Requirements:** Windows 10 or 11 and an account that can approve the administrator (UAC) prompt. Nothing else to install.
 
-1. Download **`Debloat_Gui.cmd`** (from the [latest release](../../releases/latest) or the green **Code** button).
+1. Download **`Debloat_Gui_v2.1.1.cmd`** (from the [latest release](../../releases/latest) or the green **Code** button).
 2. Double-click it and accept the administrator prompt. Removing apps for every user needs it, and it is asked once.
 3. Wait a few seconds while the installed apps are scanned.
 4. Choose a mode (or the **Custom** tab), check the list, click the red button and confirm.
@@ -187,7 +187,7 @@ Apps removed for all users and from the provisioning list aren't installed again
 
 Issues and pull requests are welcome: apps missing from the catalog, packages that changed name, translations, or fixes for a specific Windows build. Please say which Windows version you tested on.
 
-**Adding an app:** add one entry to the `$Catalog` list in `Debloat_Gui.cmd`:
+**Adding an app:** add one entry to the `$Catalog` list in `Debloat_Gui_v2.1.1.cmd`:
 
 ```powershell
 @{ N = L 'Pt name' 'English name' 'Nom français' 'Nombre español'; T = 2; P = @('Package.Name*')
@@ -210,7 +210,7 @@ Current version: **2.1.1**. The full history is in [CHANGELOG.md](CHANGELOG.md).
 
 ### 2.1.1 - 2026-10-23
 - **Fixed:** the log box at the bottom of the window now follows the selected language. Before, it stayed in the language used when the app started.
-- The version number is now in the file header too.
+- The version number is now in the file name (`Debloat_Gui_v2.1.1.cmd`) and in the file header too.
 
 ### 2.1.0 - 2026-10-23
 - Four languages (English, Português, Français, Español) with a selector in the window.
@@ -226,11 +226,11 @@ Current version: **2.1.1**. The full history is in [CHANGELOG.md](CHANGELOG.md).
 ## Repository layout
 
 ```
-Debloat_Gui.cmd   # the app, v2.1.1 (batch launcher + PowerShell window)
-README.md         # this file
-CHANGELOG.md      # version history
-LICENSE           # MIT license
-.gitattributes    # keeps CRLF line endings for .cmd files
+Debloat_Gui_v2.1.1.cmd   # the app (batch launcher + PowerShell window)
+README.md                # this file
+CHANGELOG.md             # version history
+LICENSE                  # MIT license
+.gitattributes           # keeps CRLF line endings for .cmd files
 ```
 
 ---

@@ -8,7 +8,7 @@ All notable changes to this project are listed here, newest first. The format fo
 - **The log box now follows the language.** Changing the language used to translate the whole window except the log at the bottom, which stayed in the language of the start. The introduction and every line written during a removal (progress, restore point, errors, summary) are now drawn again in the new language.
 
 ### Changed
-- The version number is now in the file header (the first lines of `Debloat_Gui.cmd`), as well as in the window title, the README and this file.
+- The version number is now in the file header (the first lines of the script), in the file name (`Debloat_Gui_v2.1.1.cmd`), in the window title, the README and this file.
 
 ## [2.1.0] - 2026-10-23
 
