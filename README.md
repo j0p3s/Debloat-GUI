@@ -4,7 +4,7 @@ A single-file Windows app remover with a window. Pick a level (**Basic**, **Stan
 
 Available in **English, Português, Français and Español**. Free and open source.
 
-![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-blue) ![license](https://img.shields.io/badge/license-MIT-green)
+![version](https://img.shields.io/badge/version-2.1.1-orange) ![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-blue) ![license](https://img.shields.io/badge/license-MIT-green)
 
 - **No install.** One `.cmd` file that uses the Windows PowerShell 5.1 that comes with Windows. You can open it in a text editor and read it before running it.
 - **Only a known list.** Nothing outside the built-in catalog is ever removed, and the Microsoft Store, App Installer (winget), Windows Security, codecs, Notepad, Paint, Terminal, Snipping Tool and system components are protected.
@@ -25,6 +25,7 @@ Available in **English, Português, Français and Español**. Free and open sour
 - [Troubleshooting](#troubleshooting)
 - [Limitations](#limitations)
 - [Contributing](#contributing)
+- [Changelog](#changelog)
 - [Repository layout](#repository-layout)
 - [Disclaimer](#disclaimer)
 - [License](#license)
@@ -203,10 +204,29 @@ Issues and pull requests are welcome: apps missing from the catalog, packages th
 
 ---
 
+## Changelog
+
+Current version: **2.1.1**. The full history is in [CHANGELOG.md](CHANGELOG.md).
+
+### 2.1.1 - 2026-10-23
+- **Fixed:** the log box at the bottom of the window now follows the selected language. Before, it stayed in the language used when the app started.
+- The version number is now in the file header too.
+
+### 2.1.0 - 2026-10-23
+- Four languages (English, Português, Français, Español) with a selector in the window.
+- App status column (*Can be removed*, *Removed (date)*, *Not installed*), a filter and a summary line.
+- Apps that can't be removed are greyed out; the buttons count only what can be removed.
+- Logs are written as `removed_*.txt` (old `removidas_*.txt` are still read).
+
+### 2.0.0
+- Window with the Modes and Custom tabs, the app catalog with four levels, protection list, confirmation, restore point and log.
+
+---
+
 ## Repository layout
 
 ```
-Debloat_Gui.cmd   # the app (batch launcher + PowerShell window)
+Debloat_Gui.cmd   # the app, v2.1.1 (batch launcher + PowerShell window)
 README.md         # this file
 CHANGELOG.md      # version history
 LICENSE           # MIT license

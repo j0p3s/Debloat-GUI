@@ -1,7 +1,7 @@
 <# : batch
 @echo off
 REM ---------------------------------------------------------------------------
-REM  Debloat GUI - batch/PowerShell hybrid launcher.
+REM  Debloat GUI v2.1.1 - batch/PowerShell hybrid launcher.
 REM  cmd.exe runs only these few lines; to PowerShell, this whole header is a
 REM  block comment. The batch part passes this file's own path to
 REM  Windows PowerShell, which reads the rest of the file (as UTF-8, for the
@@ -19,7 +19,7 @@ exit /b
 #>
 
 # =============================================================================
-#  Debloat GUI
+#  Debloat GUI v2.1.1
 #
 #  Window with two tabs (Portuguese, English, French and Spanish):
 #    Modes          Basic, Standard, Advanced and Ultra, with the description of
@@ -43,7 +43,7 @@ exit /b
 #  to every L call (the helper that holds the four texts of a string).
 # =============================================================================
 
-$AppVersion = '2.1.0'
+$AppVersion = '2.1.1'
 
 $Langs     = @('pt', 'en', 'fr', 'es')
 $LangNames = @('Português', 'English', 'Français', 'Español')
@@ -115,6 +115,7 @@ $Str = @{
     noAdmin      = L 'Sem permissao de administrador: nada foi alterado.' 'No administrator permission: nothing was changed.' 'Pas d''autorisation administrateur : rien n''a été modifié.' 'Sin permiso de administrador: no se cambió nada.'
     modeName     = L 'Modo {0}' '{0} mode' 'Mode {0}' 'Modo {0}'
     customName   = L 'Seleção personalizada' 'Custom selection' 'Sélection personnalisée' 'Selección personalizada'
+    hdr          = L '>>> {0} <<<' '>>> {0} <<<' '>>> {0} <<<' '>>> {0} <<<'
     logHeader    = L 'Debloat GUI - {0} - {1}' 'Debloat GUI - {0} - {1}' 'Debloat GUI - {0} - {1}' 'Debloat GUI - {0} - {1}'
     intro1       = L '- Só são removidas apps de uma lista conhecida. Nunca são tocados: Microsoft Store, Instalador de Aplicações (winget), Segurança do Windows, codecs, Bloco de Notas, Paint, Terminal, Ferramenta de Recorte e componentes do sistema.' '- Only apps from a known list are removed. These are never touched: Microsoft Store, App Installer (winget), Windows Security, codecs, Notepad, Paint, Terminal, Snipping Tool and system components.' '- Seules les applications d''une liste connue sont supprimées. Ne sont jamais touchés : Microsoft Store, Programme d''installation d''applications (winget), Sécurité Windows, codecs, Bloc-notes, Paint, Terminal, Outil Capture d''écran et composants système.' '- Solo se quitan apps de una lista conocida. Nunca se tocan: Microsoft Store, Instalador de aplicación (winget), Seguridad de Windows, códecs, Bloc de notas, Paint, Terminal, Herramienta de recortes y componentes del sistema.'
     intro2       = L '- Antes de remover vês a lista e confirmas; é criado um ponto de restauro (opção). As apps removidas reinstalam-se a partir da Microsoft Store.' '- Before removing you see the list and confirm; a restore point is created (option). Removed apps can be reinstalled from the Microsoft Store.' '- Avant la suppression, vous voyez la liste et vous confirmez ; un point de restauration est créé (option). Les applications supprimées se réinstallent depuis le Microsoft Store.' '- Antes de quitar ve la lista y confirma; se crea un punto de restauración (opción). Las apps quitadas se reinstalan desde Microsoft Store.'
@@ -280,6 +281,22 @@ $Catalog = @(
        D = L 'Sincronização na nuvem em segundo plano. Ficheiros só online deixam de abrir: descarrega-os antes.' 'Background cloud sync. Online-only files stop opening: download them first.' 'Synchronisation cloud en arrière-plan. Les fichiers en ligne uniquement ne s''ouvrent plus : téléchargez-les avant.' 'Sincronización en la nube en segundo plano. Los archivos solo en línea dejan de abrirse: descárguelos antes.' }
 )
 function EName($e) { $e.N[$script:Lang] }
+
+# Log items are kept as a key plus its arguments, not as finished text, so the whole log
+# can be translated again when the language is changed. Arguments can be text, a catalog
+# entry (shown by name), @{Tier = n} (shown by level name) or a scriptblock.
+function Lg { , $args }
+function Fmt($x) {
+    if ($x -is [scriptblock]) { return [string](& $x) }
+    if ($x -is [hashtable]) { if ($x.ContainsKey('Tier')) { return (TierName ([int]$x.Tier)) } else { return (EName $x) } }
+    if ($x -is [array]) {
+        $k = [string]$x[0]
+        $a = @()
+        for ($i = 1; $i -lt $x.Count; $i++) { $a += , (Fmt $x[$i]) }
+        return [string](Tx $k @a)
+    }
+    return [string]$x
+}
 function EDesc($e) { $e.D[$script:Lang] }
 # Key used to match a catalog entry with the lines of the removal logs (same in every language)
 function Get-EntryKey($e) { if ($e.OneDrive) { '' } else { $e.P -join ', ' } }
@@ -382,13 +399,13 @@ function Remove-Entry($e, [scriptblock]$log, $prov) {
                 Remove-AppxPackage -Package $pkg.PackageFullName -AllUsers -ErrorAction Stop
             } catch {
                 try { Remove-AppxPackage -Package $pkg.PackageFullName -ErrorAction Stop }   # this user only
-                catch { & $log (Tx 'failedLog' $pkg.Name $_.Exception.Message); $ok = $false }
+                catch { & $log (Lg 'failedLog' $pkg.Name $_.Exception.Message); $ok = $false }
             }
         }
         # It also stops being installed for new accounts
         foreach ($pp in @($prov | Where-Object { $_.DisplayName -like $p -and $_.DisplayName -notmatch $Protected })) {
             try { [void](Remove-AppxProvisionedPackage -Online -PackageName $pp.PackageName -ErrorAction Stop) }
-            catch { & $log (Tx 'failedProv' $pp.DisplayName $_.Exception.Message); $ok = $false }
+            catch { & $log (Lg 'failedProv' $pp.DisplayName $_.Exception.Message); $ok = $false }
         }
     }
     $ok
@@ -399,7 +416,7 @@ function Invoke-RemoveEntries($entries, [scriptblock]$log) {
     $prov = @(Get-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue)
     $done = @(); $failed = @()
     foreach ($e in $entries) {
-        & $log (Tx 'removing' (EName $e))
+        & $log (Lg 'removing' $e)
         if (Remove-Entry $e $log $prov) { $done += $e } else { $failed += $e }
     }
     , @($done, $failed)
@@ -525,9 +542,19 @@ try {
     $lblStatus.ForeColor = $cMuted
     $form.Controls.Add($lblStatus)
 
+    # The log is drawn again from its items, so it follows the selected language
+    $script:LogLines = New-Object System.Collections.ArrayList
+    function Render-Log {
+        $out = @((Tx 'title' $AppVersion), (Tx 'intro1'), (Tx 'intro2'), (Tx 'intro3'), '')
+        foreach ($l in $script:LogLines) { $out += (Fmt $l) }
+        $txtLog.Text = ($out -join "`r`n")
+        $txtLog.SelectionStart = $txtLog.TextLength
+        $txtLog.ScrollToCaret()
+    }
     $script:Log = {
         param($t)
-        $txtLog.AppendText($t + "`r`n")
+        [void]$script:LogLines.Add($t)
+        Render-Log
         [System.Windows.Forms.Application]::DoEvents()
     }
 
@@ -661,6 +688,7 @@ try {
             $c = Get-Counts $script:Rows
             $lblStatus.Text = Tx 'found' $c[0] ($c[1] + $c[2]) $script:Rows.Count
         }
+        Render-Log
     }
 
     function Update-All {
@@ -695,8 +723,9 @@ try {
     $cmbFilter2.Add_SelectedIndexChanged($onFilter)
 
     # --- Removal (with confirmation, restore point and log) ---
-    function Start-Removal($entries, [string]$title, [bool]$restore) {
+    function Start-Removal($entries, $titleItem, [bool]$restore) {
         $entries = @($entries)
+        $title = Fmt $titleItem
         if (-not $entries) { [void][System.Windows.Forms.MessageBox]::Show((Tx 'nothing'), 'Debloat', 'OK', 'Information'); return }
         $list = ($entries | ForEach-Object { '  - ' + (EName $_) }) -join "`r`n"
         $warn = ''
@@ -704,19 +733,19 @@ try {
             $warn = "`r`n`r`n" + (Tx 'xboxWarn')
         }
         $q = (Tx 'confirmHead' $title) + "`r`n`r`n" + $list + $warn + "`r`n`r`n" + (Tx 'confirmAsk')
-        if ([System.Windows.Forms.MessageBox]::Show($q, (Tx 'confirmTitle'), 'YesNo', 'Warning') -ne 'Yes') { & $script:Log (Tx 'cancelled'); return }
+        if ([System.Windows.Forms.MessageBox]::Show($q, (Tx 'confirmTitle'), 'YesNo', 'Warning') -ne 'Yes') { & $script:Log (Lg 'cancelled'); return }
 
         $tabs.Enabled = $false; $form.UseWaitCursor = $true
         & $script:Log ''
-        & $script:Log ('>>> {0} <<<' -f $title)
+        & $script:Log (Lg 'hdr' $titleItem)
         if ($restore) {
-            & $script:Log (Tx 'restoring')
+            & $script:Log (Lg 'restoring')
             if (New-RestorePoint) {
-                & $script:Log (Tx 'restoreOk' (Tx 'rpName'))
+                & $script:Log (Lg 'restoreOk' { Tx 'rpName' })
             } else {
-                & $script:Log (Tx 'restoreFail')
+                & $script:Log (Lg 'restoreFail')
                 $a = [System.Windows.Forms.MessageBox]::Show((Tx 'restoreAsk'), (Tx 'restoreTitle'), 'YesNo', 'Warning')
-                if ($a -ne 'Yes') { & $script:Log (Tx 'cancelled'); $tabs.Enabled = $true; $form.UseWaitCursor = $false; return }
+                if ($a -ne 'Yes') { & $script:Log (Lg 'cancelled'); $tabs.Enabled = $true; $form.UseWaitCursor = $false; return }
             }
         }
         $r = Invoke-RemoveEntries $entries $script:Log
@@ -732,10 +761,10 @@ try {
                      @($done | ForEach-Object { '  ' + (EName $_) + '  [' + (Get-EntryKey $_) + ']' })
             if ($failed) { $lines += @('', (Tx 'logFailed')) + @($failed | ForEach-Object { '  ' + (EName $_) }) }
             [IO.File]::WriteAllLines($f, [string[]]$lines, (New-Object System.Text.UTF8Encoding $true))
-            & $script:Log (Tx 'logPath' $f)
+            & $script:Log (Lg 'logPath' $f)
         } catch { }
 
-        & $script:Log (Tx 'done' $done.Count $failed.Count)
+        & $script:Log (Lg 'done' $done.Count $failed.Count)
         $form.UseWaitCursor = $false
         Update-All
         [void][System.Windows.Forms.MessageBox]::Show(((Tx 'doneBox' $done.Count $failed.Count) + "`r`n`r`n" + (Tx 'restartMsg')), (Tx 'doneTitle'), 'OK', 'Information')
@@ -744,22 +773,15 @@ try {
     # An error inside a button is shown and the window becomes usable again
     function Show-Error($err) {
         $tabs.Enabled = $true; $form.UseWaitCursor = $false
-        & $script:Log (Tx 'errLog' $err.Exception.Message)
+        & $script:Log (Lg 'errLog' $err.Exception.Message)
         [void][System.Windows.Forms.MessageBox]::Show((Tx 'errBox' $err.Exception.Message), 'Debloat GUI', 'OK', 'Error')
     }
 
-    $btnRemoveMode.Add_Click({ try { Start-Removal (Get-ModeEntries $script:Mode) (Tx 'modeName' (TierName $script:Mode)) $chkRestore1.Checked } catch { Show-Error $_ } })
-    $btnRemoveCustom.Add_Click({ try { Start-Removal @($lvCustom.CheckedItems | ForEach-Object { $_.Tag.Entry }) (Tx 'customName') $chkRestore2.Checked } catch { Show-Error $_ } })
+    $btnRemoveMode.Add_Click({ try { Start-Removal (Get-ModeEntries $script:Mode) (Lg 'modeName' @{ Tier = $script:Mode }) $chkRestore1.Checked } catch { Show-Error $_ } })
+    $btnRemoveCustom.Add_Click({ try { Start-Removal @($lvCustom.CheckedItems | ForEach-Object { $_.Tag.Entry }) (Lg 'customName') $chkRestore2.Checked } catch { Show-Error $_ } })
 
     # --- First texts ---
     Apply-Language
-    $txtLog.Text = (@(
-        (Tx 'title' $AppVersion),
-        (Tx 'intro1'),
-        (Tx 'intro2'),
-        (Tx 'intro3'),
-        ''
-    ) -join "`r`n")
 
     $form.Add_Shown({ try { $form.Activate(); Update-All } catch { Show-Error $_ } })
     [void]$form.ShowDialog()

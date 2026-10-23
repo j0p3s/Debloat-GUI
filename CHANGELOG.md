@@ -2,6 +2,14 @@
 
 All notable changes to this project are listed here, newest first. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
+## [2.1.1] - 2026-10-23
+
+### Fixed
+- **The log box now follows the language.** Changing the language used to translate the whole window except the log at the bottom, which stayed in the language of the start. The introduction and every line written during a removal (progress, restore point, errors, summary) are now drawn again in the new language.
+
+### Changed
+- The version number is now in the file header (the first lines of `Debloat_Gui.cmd`), as well as in the window title, the README and this file.
+
 ## [2.1.0] - 2026-10-23
 
 ### Added
@@ -27,5 +35,6 @@ All notable changes to this project are listed here, newest first. The format fo
 - Warning when the Xbox sign-in component is included.
 - Administrator rights asked once (UAC); the console window is hidden.
 
+[2.1.1]: ../../releases/tag/v2.1.1
 [2.1.0]: ../../releases/tag/v2.1.0
 [2.0.0]: ../../releases/tag/v2.0.0
