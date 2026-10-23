@@ -14,6 +14,7 @@ Available in **English, Português, Français and Español**. Free and open sour
 
 ## Table of contents
 
+- [Screenshots](#screenshots)
 - [Quick start](#quick-start)
 - [What you see in the window](#what-you-see-in-the-window)
 - [The four modes](#the-four-modes)
@@ -29,6 +30,26 @@ Available in **English, Português, Français and Español**. Free and open sour
 - [Repository layout](#repository-layout)
 - [Disclaimer](#disclaimer)
 - [License](#license)
+
+---
+
+## Screenshots
+
+**Modes tab.** The four modes, the list of apps with their status, and a summary line. The log at the bottom shows what is being done.
+
+![Modes tab in English: Advanced mode selected, with the status of each app](docs/screenshots/modes-en.png)
+
+**Custom tab.** Tick apps one by one. Apps that are already removed or not installed are greyed out and can't be ticked.
+
+![Custom tab in English: apps that can be removed are ticked one by one](docs/screenshots/custom-en.png)
+
+**Four languages.** The whole window follows the selector at the top right, including the log. Here in French.
+
+![Custom tab in French](docs/screenshots/language-fr.png)
+
+**Filter.** Show everything, only the apps that can be removed, or only those already removed / not installed.
+
+![Filter set to show only the apps that can be removed, in French](docs/screenshots/filter-fr.png)
 
 ---
 
